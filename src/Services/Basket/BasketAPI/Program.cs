@@ -1,6 +1,5 @@
 
 using BuildingBlocks.Exceptions.Handler;
-using Microsoft.Extensions.Caching.Distributed;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,11 +21,7 @@ builder.Services.AddMarten(opt =>
 }).UseLightweightSessions();
 
 builder.Services.AddScoped<IBasketRepository, BasketRepository>();
-builder.Services.AddScoped<IBasketRepository>(provider =>
-{
-    var basketRepository = provider.GetRequiredService<IBasketRepository>();
-    return new CachedBasketRepository(basketRepository, provider.GetRequiredService<IDistributedCache>());
-});
+builder.Services.Decorate<IBasketRepository, CachedBasketRepository>();
 builder.Services.AddExceptionHandler<CustomExceptionHandler>();
 
 var app = builder.Build();
